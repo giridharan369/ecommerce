@@ -1,6 +1,5 @@
 package hello;
 
-
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
@@ -16,13 +15,16 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class Base {
 
 	// the below method will launch the browser and return WebDriver
 	public static WebDriver launchBrowser() {
 		System.setProperty("webdriver.chrome.driver",
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\Blue\\driver\\chromedriver.exe");
+				new File("." + File.separator + "driver" + File.separator + "chromedriver.exe").getAbsolutePath());
 		return new ChromeDriver();
 	}
 
@@ -49,8 +51,7 @@ public class Base {
 	// findelement module ends
 	// login
 	public static void login(WebDriver driver) throws IOException {
-		takeScreenshot(driver,
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\hello\\Screenshot\\successful5.jpeg");
+		takeScreenshot(driver, "./Screenshot/successful5.jpeg");
 
 		WebElement linkSignIn = FindElementByXpath(driver, "//a[@href='https://www.coolblue.nl/en/login']");
 
@@ -65,8 +66,7 @@ public class Base {
 		WebElement btnLogin = FindElementByXpath(driver, "//button[@class='button button--order button--full-width']");
 		btnLogin.click();
 
-		takeScreenshot(driver,
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\hello\\Screenshot\\successful1.jpeg");
+		takeScreenshot(driver, "./Screenshot/successful1.jpeg");
 
 	}
 
@@ -88,8 +88,7 @@ public class Base {
 
 		r.keyPress(KeyEvent.VK_ENTER);
 		r.keyRelease(KeyEvent.VK_ENTER);
-		takeScreenshot(driver,
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\hello\\Screenshot\\successful10.jpeg");
+		takeScreenshot(driver, "./Screenshot/successful10.jpeg");
 
 	}
 	// search product ends
@@ -98,30 +97,35 @@ public class Base {
 	public static void addToCart(WebDriver driver) throws IOException, InterruptedException {
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 		WebElement linkProduct = FindElementByXpath(driver,
-				"//div[@class='text-align--center space--bottom-4  js-current-product-title'][1]");
+				"//div[@class='is-hidden is-visible-from-size-m js-desktop-order-block']//button[@type='submit']");
 
 		linkProduct.click();
 
-		WebElement btnAddToCart = FindElementByXpath(driver, "//button[@type='submit'][6]");
+		Wait wait = new WebDriverWait(driver, 60);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='grid-section-xs--gap-2' and .//*[contains(text(),'ready to order')]]")));
+		WebElement btnAddToCart = FindElementByXpath(driver, "//div[@class='grid-section-xs--gap-2' and .//*[contains(text(),'ready to order')]]");
 		btnAddToCart.click();
 		
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@class='button button--order js-shoppingcart-submit-button' and .//*[contains(text(), 'ready to order')]][1]")));
+		WebElement btnImReadyToOrder = FindElementByXpath(driver, "//button[@class='button button--order js-shoppingcart-submit-button' and .//*[contains(text(), 'ready to order')]][1]");
+		btnImReadyToOrder.click();
 		
 		Thread.sleep(2000);
-		takeScreenshot(driver,
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\hello\\Screenshot\\successfuladdcart.jpeg");
+		takeScreenshot(driver, "./Screenshot/successfuladdcart.jpeg");
 
 	}
 
 	// add to cart module ends
 	// checkout
 	public static void checkout(WebDriver driver) throws IOException {
-		WebElement btnCheckout = FindElementByXpath(driver, "(//button[@class='button button--order button--full-width js-add-to-cart-button'])[1]");
+		WebElement btnCheckout = FindElementByXpath(driver,
+				"//button[@class='button button--order']");
 		btnCheckout.click();
-		takeScreenshot(driver,
-				"C:\\Users\\GIRI\\Desktop\\selenium\\eclipse-workspace\\hello\\Screenshot\\successfuladdcart.jpeg");
+		takeScreenshot(driver, "./Screenshot/successfuladdcart.jpeg");
 
 	}
-	public static void prodclick (WebDriver driver) throws IOException {
+
+	public static void prodclick(WebDriver driver) throws IOException {
 		WebElement productclick = FindElementByXpath(driver, "//h3[@class='text-color--link'][1]");
 		productclick.click();
 	}
@@ -141,13 +145,14 @@ public class Base {
 		login(driver);
 
 		searchProduct(driver);
-		
+
 		prodclick(driver);
 
 		addToCart(driver);
 
 		checkout(driver);
 
+		driver.quit();
+
 	}
 }
-
